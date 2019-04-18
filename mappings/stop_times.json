@@ -1,0 +1,147 @@
+{
+    "mappings": {
+        "properties": {
+            "arrival_time": {
+                "type": "keyword"
+            },
+            "departure_time": {
+                "type": "keyword"
+            },
+            "drop_off_type": {
+                "type": "long"
+            },
+            "pickup_type": {
+                "type": "long"
+            },
+            "shape_dist_traveled": {
+                "type": "double"
+            },
+            "stop": {
+                "properties": {
+                    "location_type": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "parent_station": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "code": {
+                        "type": "long"
+                    },
+                    "desc": {
+                        "type": "text"
+                    },
+                    "id": {
+                        "type": "keyword"
+                    },
+                    "name": {
+                        "type": "text"
+                    },
+                    "pos": {
+                        "type": "geo_point"
+                    },
+                    "timezone": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "url": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    },
+                    "wheelchair_boarding": {
+                        "type": "long"
+                    },
+                    "zone_id": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    }
+                }
+            },
+            "stop_sequence": {
+                "type": "long"
+            },
+            "timepoint": {
+                "type": "long"
+            },
+            "trip": {
+                "properties": {
+                    "bikes_allowed": {
+                        "type": "long"
+                    },
+                    "block_id": {
+                        "type": "long"
+                    },
+                    "direction_id": {
+                        "type": "long"
+                    },
+                    "route": {
+                        "properties": {
+                            "agency_id": {
+                                "type": "keyword"
+                            },
+                            "color": {
+                                "type": "keyword"
+                            },
+                            "id": {
+                                "type": "keyword"
+                            },
+                            "long_name": {
+                                "type": "text"
+                            },
+                            "short_name": {
+                                "type": "long"
+                            },
+                            "text_color": {
+                                "type": "keyword"
+                            },
+                            "type": {
+                                "type": "long"
+                            }
+                        }
+                    },
+                    "service_id": {
+                        "type": "long"
+                    },
+                    "shape_id": {
+                        "type": "long"
+                    },
+                    "headsign": {
+                        "type": "text"
+                    },
+                    "id": {
+                        "type": "long"
+                    },
+                    "wheelchair_accessible": {
+                        "type": "long"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,69 @@
+{
+    "mappings": {
+        "properties": {
+            "location_type": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "parent_station": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "code": {
+                "type": "long"
+            },
+            "desc": {
+                "type": "text"
+            },
+            "id": {
+                "type": "keyword"
+            },
+            "name": {
+                "type": "text"
+            },
+            "pos": {
+                "type": "geo_point"
+            },
+            "timezone": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "url": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "wheelchair_boarding": {
+                "type": "long"
+            },
+            "zone_id": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            }
+        }
+    }
+}

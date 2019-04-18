@@ -1,0 +1,43 @@
+{
+    "mappings": {
+        "properties": {
+            "finish": {
+                "type": "geo_point"
+            },
+            "id": {
+                "type": "long"
+            },
+            "path": {
+                "type": "geo_shape"
+            },
+            "start": {
+                "type": "geo_point"
+            },
+            "route": {
+                "properties": {
+                    "agency_id": {
+                        "type": "keyword"
+                    },
+                    "color": {
+                        "type": "keyword"
+                    },
+                    "id": {
+                        "type": "keyword"
+                    },
+                    "long_name": {
+                        "type": "text"
+                    },
+                    "short_name": {
+                        "type": "long"
+                    },
+                    "text_color": {
+                        "type": "keyword"
+                    },
+                    "type": {
+                        "type": "long"
+                    }
+                }
+            }
+        }
+    }
+}
