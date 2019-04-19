@@ -1,11 +1,10 @@
 import csv
+import configparser
 import certifi
 from elasticsearch import Elasticsearch
 from elasticsearch.client.indices import IndicesClient
 from elasticsearch.helpers import parallel_bulk 
 
-
-gtfs_docs_path="<PATH>"
 
 def remove_prefix(text: str, prefix: str):
     if text.startswith(prefix):
@@ -21,7 +20,7 @@ def remove_prefix_from_dict(prefix: str, d: dict):
             new_d[k] = d[k]
     return new_d
 
-def gather_shapes():
+def gather_shapes(gtfs_docs_path: str):
     shapes = dict()
     with open(gtfs_docs_path + "shapes.txt", 'r' ) as shapes_file:
         reader = csv.DictReader(shapes_file)
@@ -46,7 +45,7 @@ def gather_shapes():
     return shapes
 
 
-def gather_stops():
+def gather_stops(gtfs_docs_path: str):
     stops = dict()
     with open(gtfs_docs_path + "stops.txt", 'r' ) as stops_file:
         reader = csv.DictReader(stops_file)
@@ -60,7 +59,7 @@ def gather_stops():
     return stops
     
             
-def gather_trips():
+def gather_trips(gtfs_docs_path: str):
     trips = dict()
     with open(gtfs_docs_path + "trips.txt", 'r' ) as trips_file:
         reader = csv.DictReader(trips_file)
@@ -69,7 +68,7 @@ def gather_trips():
             trips[trip_id] = remove_prefix_from_dict("trip_", line)
     return trips
 
-def gather_routes():
+def gather_routes(gtfs_docs_path: str):
     routes = dict()
     with open(gtfs_docs_path + "routes.txt", 'r' ) as routes_file:
         reader = csv.DictReader(routes_file)
@@ -78,7 +77,7 @@ def gather_routes():
             routes[route_id] = remove_prefix_from_dict("route_", line) 
     return routes
 
-def gather_stop_times():
+def gather_stop_times(gtfs_docs_path: str):
     stop_times = []
     with open(gtfs_docs_path + "stop_times.txt", 'r' ) as stop_times_file:
         reader = csv.DictReader(stop_times_file)
@@ -86,7 +85,7 @@ def gather_stop_times():
             stop_times.append(line)
     return stop_times
 
-def gather_transfers():
+def gather_transfers(gtfs_docs_path: str):
     transfers = []
     with open(gtfs_docs_path + "transfers.txt", 'r' ) as transfers_file:
         reader = csv.DictReader(transfers_file)
@@ -114,19 +113,24 @@ def shape_to_route_dict(trips: list, routes: dict):
 
 
 def main():
-    index_prefix = "via"
+    c_parser = configparser.ConfigParser()
+    c_parser.read("config.ini")
+    es_config = c_parser["ELASTIC"]
+    gtfs_config = c_parser["GTFS"]
+    gtfs_path = gtfs_config["gtfs_path"]
+    index_prefix = es_config["index_prefix"]
     stops_index = index_prefix + "_stops"
     shapes_index = index_prefix + "_shapes"
     stop_times_index = index_prefix + "_stop_times"
-   # es = Elasticsearch(
-   #     host="<YOURHOST>",
-   #     scheme="https",
-   #     port=9243,
-   #     http_auth=("<USERNAME>", "<PASSWORD"),
-   #     use_ssl=True,
-   #     verify_certs=True,
-   #     ca_certs=certifi.where())
-    es = Elasticsearch()
+    es = Elasticsearch(
+        host=es_config["host"],
+        scheme=es_config["scheme"],
+        port=es_config.getint("port"),
+        http_auth=(es_config["username"], es_config["password"]),
+        use_ssl=es_config.getboolean("use_ssl"),
+        verify_certs=es_config.getboolean("verify_certs"),
+        ca_certs=certifi.where())
+    
     with open("mappings/shapes.json", 'r' ) as shapes_mapping_file:
         shapes_mapping = shapes_mapping_file.read()
     
@@ -140,16 +144,16 @@ def main():
     indices.create(stops_index, body=stops_mapping)
     indices.create(shapes_index, body=shapes_mapping)
     indices.create(stop_times_index, body=stop_times_mapping)
-    all_stops = gather_stops()
+    all_stops = gather_stops(gtfs_path)
     for ok, item in parallel_bulk(es, genbulkactions(stops_index, all_stops.values()), chunk_size=500):
         if not ok:
             print(item)
     
     print("Done with stops")
 
-    all_shapes = gather_shapes()
-    all_trips = gather_trips()
-    all_routes = gather_routes()
+    all_shapes = gather_shapes(gtfs_path)
+    all_trips = gather_trips(gtfs_path)
+    all_routes = gather_routes(gtfs_path)
     shapes_to_route = shape_to_route_dict(all_trips.values(), all_routes)
     for shape_id in shapes_to_route.keys():
         all_shapes[shape_id]['route'] = shapes_to_route[shape_id]
@@ -166,7 +170,7 @@ def main():
         if route_id:
             trip['route'] = all_routes[int(route_id)]
 
-    all_stop_times = gather_stop_times()
+    all_stop_times = gather_stop_times(gtfs_path)
     for stop_time in all_stop_times:
         trip_id = stop_time.pop("trip_id", None)
         stop_id = stop_time.pop("stop_id", None)
